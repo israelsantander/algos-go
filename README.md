@@ -13,7 +13,6 @@ Do not use it as-is in production systems.
 
 - Provide pure algorithm implementations with direct function APIs.
 - Keep mutation semantics explicit.
-- Avoid UI, renderer, runtime, and teaching-step dependencies.
 - Offer a lightweight optional catalog for discovery and docs.
 
 ## Packages
