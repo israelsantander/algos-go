@@ -24,7 +24,7 @@ type Entry struct {
 	Example    string
 }
 
-// Entries returns the catalog metadata for the algorithms exposed by this module.
+// Entries returns the catalog metadata for the algorithms exposed by this module. 
 func Entries() []Entry {
 	return []Entry{
 		{ID: "bubble", Name: "Bubble Sort", Family: FamilySorting, Complexity: "O(n^2)", Example: "sorting.Bubble([]int{5,1,4,2,8})"},

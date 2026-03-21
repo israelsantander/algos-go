@@ -1,43 +1,81 @@
 package sorting
 
-import "cmp"
+import (
+	"cmp"
+	"slices"
+)
 
 // Insertion returns a sorted copy of values using insertion sort.
 //
+// # Characteristics
+//
 // Insertion sort is a strong choice for tiny inputs and nearly sorted data because it moves each
-// element only as far as needed.
-// Example: Insertion([]int{4, 1, 3, 2}) returns []int{1, 2, 3, 4}.
-// Time complexity: O(n^2) average and worst case, O(n) best case. Additional space: O(n).
+// element only as far as needed. It is stable.
+//
+// # Complexity
+//
+// It runs in O(n^2) time in the average and worst cases, O(n) on already-sorted input,
+// and uses O(n) additional space for the copied result.
 func Insertion[T cmp.Ordered](values []T) []T {
-	return InsertionFunc(values, orderedLess[T])
+	return InsertionFunc(values, cmp.Less[T])
 }
 
 // InsertionFunc returns a sorted copy of values using insertion sort and the provided comparator.
 //
+// # Use
+//
 // Use it for custom types when the data is small or already close to sorted.
-// Example: InsertionFunc(points, func(a, b point) bool { return a.X < b.X }).
-// Time complexity: O(n^2) average and worst case, O(n) best case. Additional space: O(n).
+//
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// It runs in O(n^2) time in the average and worst cases, O(n) on already-sorted input,
+// and uses O(n) additional space for the copied result.
 func InsertionFunc[T any](values []T, less func(a, b T) bool) []T {
-	out := clone(values)
-	InsertionInPlaceFunc(out, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	out := slices.Clone(values)
+	insertionInPlace(out, less)
 	return out
 }
 
-// InsertionInPlace sorts values in ascending order using insertion sort.
+// InsertionInPlace sorts values in place using insertion sort.
 //
-// It is stable, in-place, and especially effective on nearly sorted slices.
-// Example: InsertionInPlace([]int{2, 1, 3}) changes the slice to []int{1, 2, 3}.
-// Time complexity: O(n^2) average and worst case, O(n) best case. Additional space: O(1).
+// # Characteristics
+//
+// Insertion sort is stable, in-place, and especially effective on nearly sorted slices.
+//
+// # Complexity
+//
+// It runs in O(n^2) time in the average and worst cases, O(n) on already-sorted input,
+// and uses O(1) additional space.
 func InsertionInPlace[T cmp.Ordered](values []T) {
-	InsertionInPlaceFunc(values, orderedLess[T])
+	InsertionInPlaceFunc(values, cmp.Less[T])
 }
 
 // InsertionInPlaceFunc sorts values in place using insertion sort and the provided comparator.
 //
-// Example: InsertionInPlaceFunc(rows, func(a, b row) bool { return a.ID < b.ID }).
-// Time complexity: O(n^2) average and worst case, O(n) best case. Additional space: O(1).
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// It runs in O(n^2) time in the average and worst cases, O(n) on already-sorted input,
+// and uses O(1) additional space.
 func InsertionInPlaceFunc[T any](values []T, less func(a, b T) bool) {
-	insertionInPlace(values, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	insertionInPlace(values, less)
 }
 
 // insertionInPlace keeps a sorted prefix and inserts the next value into its correct spot.

@@ -1,29 +1,50 @@
 package sorting
 
-import "cmp"
+import (
+	"cmp"
+	"slices"
+)
 
 // QuickSelect returns the k-th smallest value from a copy of values using quickselect.
 //
-// It is useful when you need one order statistic, such as the median, without fully sorting the
-// slice. The function returns false when k is out of range.
-// Example: QuickSelect([]int{9, 1, 7, 3, 5}, 2) returns 5, true.
-// Average time complexity: O(n). Worst case: O(n^2). Additional space: O(n) for the copied input.
+// # Behavior
+//
+// Use it when you need one order statistic, such as the median, without fully sorting the slice.
+//
+// It returns false when k is out of range.
+//
+// # Complexity
+//
+// It runs in O(n) time on average, O(n^2) in the worst case, and uses O(n) additional space.
 func QuickSelect[T cmp.Ordered](values []T, k int) (T, bool) {
-	return QuickSelectFunc(values, k, orderedLess[T])
+	return QuickSelectFunc(values, k, cmp.Less[T])
 }
 
-// QuickSelectFunc returns the k-th smallest value from a copy of values using quickselect and less.
+// QuickSelectFunc returns the k-th smallest value from a copy of values using quickselect and the provided comparator.
 //
-// The function returns false when k is out of range.
-// Example: QuickSelectFunc(players, 4, func(a, b player) bool { return a.Score < b.Score }).
-// Average time complexity: O(n). Worst case: O(n^2). Additional space: O(n) for the copied input.
+// # Behavior
+//
+// It returns false when k is out of range.
+//
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// It runs in O(n) time on average, O(n^2) in the worst case, and uses O(n) additional space.
 func QuickSelectFunc[T any](values []T, k int, less func(a, b T) bool) (T, bool) {
 	var zero T
 	if k < 0 || k >= len(values) {
 		return zero, false
 	}
-	out := clone(values)
-	return quickSelect(out, k, requireLess(less)), true
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	out := slices.Clone(values)
+	return quickSelect(out, k, less), true
 }
 
 func quickSelect[T any](values []T, k int, less func(a, b T) bool) T {
@@ -34,8 +55,8 @@ func quickSelect[T any](values []T, k int, less func(a, b T) bool) T {
 			return values[k]
 		}
 
-		pivot := medianOfThree(values, low, high, less)
-		lt, gt := partition(values, low, high, pivot, less)
+		pivot := medianOfThreeValue(values, low, high, less)
+		lt, gt := partition3Way(values, low, high, pivot, less)
 		switch {
 		case k < lt:
 			high = lt - 1

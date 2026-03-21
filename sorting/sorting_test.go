@@ -206,11 +206,21 @@ func TestQuickSelectFunc(t *testing.T) {
 
 func TestFuncVariantsPanicOnNilComparator(t *testing.T) {
 	tests := map[string]func(){
-		"BubbleFunc":        func() { _ = BubbleFunc([]int{2, 1}, nil) },
-		"BubbleInPlaceFunc": func() { BubbleInPlaceFunc([]int{2, 1}, nil) },
-		"MergeFunc":         func() { _ = MergeFunc([]int{2, 1}, nil) },
-		"QuickSelectFunc":   func() { _, _ = QuickSelectFunc([]int{2, 1}, 0, nil) },
-		"QuickInPlaceFunc":  func() { QuickInPlaceFunc([]int{2, 1}, nil) },
+		"BubbleFunc":           func() { _ = BubbleFunc([]int{2, 1}, nil) },
+		"BubbleInPlaceFunc":    func() { BubbleInPlaceFunc([]int{2, 1}, nil) },
+		"HeapFunc":             func() { _ = HeapFunc([]int{2, 1}, nil) },
+		"HeapInPlaceFunc":      func() { HeapInPlaceFunc([]int{2, 1}, nil) },
+		"InsertionFunc":        func() { _ = InsertionFunc([]int{2, 1}, nil) },
+		"InsertionInPlaceFunc": func() { InsertionInPlaceFunc([]int{2, 1}, nil) },
+		"MergeFunc":            func() { _ = MergeFunc([]int{2, 1}, nil) },
+		"MergeInPlaceFunc":     func() { MergeInPlaceFunc([]int{2, 1}, nil) },
+		"QuickSelectFunc":      func() { _, _ = QuickSelectFunc([]int{2, 1}, 0, nil) },
+		"QuickFunc":            func() { _ = QuickFunc([]int{2, 1}, nil) },
+		"QuickInPlaceFunc":     func() { QuickInPlaceFunc([]int{2, 1}, nil) },
+		"SelectionFunc":        func() { _ = SelectionFunc([]int{2, 1}, nil) },
+		"SelectionInPlaceFunc": func() { SelectionInPlaceFunc([]int{2, 1}, nil) },
+		"ShellFunc":            func() { _ = ShellFunc([]int{2, 1}, nil) },
+		"ShellInPlaceFunc":     func() { ShellInPlaceFunc([]int{2, 1}, nil) },
 	}
 
 	for name, fn := range tests {

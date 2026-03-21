@@ -1,47 +1,85 @@
 package sorting
 
-import "cmp"
+import (
+	"cmp"
+	"slices"
+)
 
 // Shell returns a sorted copy of values using Shell sort.
 //
-// Shell sort generalizes insertion sort by first moving elements across larger gaps, which makes it
-// much faster than plain quadratic sorts on medium-sized slices.
-// Example: Shell([]int{8, 5, 2, 6, 9, 3}) returns []int{2, 3, 5, 6, 8, 9}.
-// Time complexity: depends on the gap sequence; with Knuth gaps it is typically subquadratic in practice.
-// Additional space: O(n).
+// # Characteristics
+//
+// Shell sort generalizes insertion sort by first moving elements across larger gaps, which makes
+// it much faster than plain quadratic sorts on medium-sized slices. It is not stable.
+//
+// # Complexity
+//
+// Its exact running time depends on the gap sequence.
+//
+// With Knuth gaps, it is typically subquadratic in practice and uses O(n) additional space.
 func Shell[T cmp.Ordered](values []T) []T {
-	return ShellFunc(values, orderedLess[T])
+	return ShellFunc(values, cmp.Less[T])
 }
 
 // ShellFunc returns a sorted copy of values using Shell sort and the provided comparator.
 //
+// # Use
+//
 // Use it for custom types when you want an in-place algorithm that often beats insertion and selection sort.
-// Example: ShellFunc(items, func(a, b item) bool { return a.Weight < b.Weight }).
-// Time complexity: depends on the gap sequence; with Knuth gaps it is typically subquadratic in practice.
-// Additional space: O(n).
+//
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// Its exact running time depends on the gap sequence.
+//
+// With Knuth gaps, it is typically subquadratic in practice and uses O(n) additional space.
 func ShellFunc[T any](values []T, less func(a, b T) bool) []T {
-	out := clone(values)
-	ShellInPlaceFunc(out, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	out := slices.Clone(values)
+	shellInPlace(out, less)
 	return out
 }
 
-// ShellInPlace sorts values in ascending order using Shell sort.
+// ShellInPlace sorts values in place using Shell sort.
 //
-// It is in-place and usually much faster than simple quadratic sorts, but it is not stable.
-// Example: ShellInPlace([]int{7, 1, 4, 2}) changes the slice to []int{1, 2, 4, 7}.
-// Time complexity: depends on the gap sequence; with Knuth gaps it is typically subquadratic in practice.
-// Additional space: O(1).
+// # Characteristics
+//
+// Shell sort is in-place and usually much faster than simple quadratic sorts, but it is not stable.
+//
+// # Complexity
+//
+// Its exact running time depends on the gap sequence.
+//
+// With Knuth gaps, it is typically subquadratic in practice and uses O(1) additional space.
 func ShellInPlace[T cmp.Ordered](values []T) {
-	ShellInPlaceFunc(values, orderedLess[T])
+	ShellInPlaceFunc(values, cmp.Less[T])
 }
 
 // ShellInPlaceFunc sorts values in place using Shell sort and the provided comparator.
 //
-// Example: ShellInPlaceFunc(entries, func(a, b entry) bool { return a.Key < b.Key }).
-// Time complexity: depends on the gap sequence; with Knuth gaps it is typically subquadratic in practice.
-// Additional space: O(1).
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// Its exact running time depends on the gap sequence.
+//
+// With Knuth gaps, it is typically subquadratic in practice and uses O(1) additional space.
 func ShellInPlaceFunc[T any](values []T, less func(a, b T) bool) {
-	shellInPlace(values, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	shellInPlace(values, less)
 }
 
 // shellInPlace performs gap-based insertion passes using the Knuth sequence, gradually reducing
