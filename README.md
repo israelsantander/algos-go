@@ -26,6 +26,17 @@ Do not use it as-is in production systems.
 - `recursion`: Towers of Hanoi, factorial, Fibonacci, permutations, combinations, subsets, N-Queens
 - `catalog`: metadata-only algorithm catalog
 
+## CLI
+
+The repository includes a small catalog CLI under `cmd/algos-go`.
+
+```bash
+go run ./cmd/algos-go list
+go run ./cmd/algos-go list -family sorting
+go run ./cmd/algos-go show bubble
+go run ./cmd/algos-go demo dijkstra
+```
+
 ## API Conventions
 
 - Sorting functions expose both copy-returning and in-place variants.

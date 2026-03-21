@@ -1,44 +1,78 @@
 package sorting
 
-import "cmp"
+import (
+	"cmp"
+	"slices"
+)
 
 // Heap returns a sorted copy of values using heap sort.
 //
-// Heap sort guarantees O(n log n) time and uses only constant extra working memory in its in-place form.
-// It is a good fit when worst-case time matters and stability does not.
-// Example: Heap([]int{6, 1, 8, 3}) returns []int{1, 3, 6, 8}.
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(n).
+// # Characteristics
+//
+// Heap sort guarantees O(n log n) time and uses only constant extra working memory in its
+// in-place form. It is a good fit when worst-case time matters and stability does not.
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(n) additional space for the copied result.
 func Heap[T cmp.Ordered](values []T) []T {
-	return HeapFunc(values, orderedLess[T])
+	return HeapFunc(values, cmp.Less[T])
 }
 
 // HeapFunc returns a sorted copy of values using heap sort and the provided comparator.
 //
+// # Use
+//
 // Use it for custom types when you want deterministic O(n log n) sorting without merge sort's extra buffer logic.
-// Example: HeapFunc(files, func(a, b file) bool { return a.Size < b.Size }).
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(n).
+//
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(n) additional space for the copied result.
 func HeapFunc[T any](values []T, less func(a, b T) bool) []T {
-	out := clone(values)
-	HeapInPlaceFunc(out, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	out := slices.Clone(values)
+	heapInPlace(out, less)
 	return out
 }
 
-// HeapInPlace sorts values in ascending order using heap sort.
+// HeapInPlace sorts values in place using heap sort.
+//
+// # Characteristics
 //
 // It is in-place and guarantees O(n log n) time, but it is not stable and often has larger
 // constant factors than quicksort in practice.
-// Example: HeapInPlace([]int{5, 9, 1, 3}) changes the slice to []int{1, 3, 5, 9}.
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(1).
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(1) additional space.
 func HeapInPlace[T cmp.Ordered](values []T) {
-	HeapInPlaceFunc(values, orderedLess[T])
+	HeapInPlaceFunc(values, cmp.Less[T])
 }
 
 // HeapInPlaceFunc sorts values in place using heap sort and the provided comparator.
 //
-// Example: HeapInPlaceFunc(items, func(a, b item) bool { return a.Rank < b.Rank }).
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(1).
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(1) additional space.
 func HeapInPlaceFunc[T any](values []T, less func(a, b T) bool) {
-	heapInPlace(values, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	heapInPlace(values, less)
 }
 
 // heapInPlace first builds a max-heap, then repeatedly moves the largest element to the end

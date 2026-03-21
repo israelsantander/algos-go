@@ -1,55 +1,90 @@
 package sorting
 
-import "cmp"
+import (
+	"cmp"
+	"slices"
+)
 
 // Merge returns a sorted copy of values using merge sort.
 //
-// Merge sort is stable and guarantees O(n log n) time, making it a strong default when predictable
-// performance matters more than temporary memory usage.
-// Example: Merge([]int{5, 2, 5, 1}) returns []int{1, 2, 5, 5}.
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(n).
+// # Characteristics
+//
+// Merge sort is stable and guarantees O(n log n) time, making it a strong default when
+// predictable performance matters more than temporary memory usage.
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(n) additional space.
 func Merge[T cmp.Ordered](values []T) []T {
-	return MergeFunc(values, orderedLess[T])
+	return MergeFunc(values, cmp.Less[T])
 }
 
 // MergeFunc returns a sorted copy of values using merge sort and the provided comparator.
 //
+// # Use
+//
 // Use it for custom types when you want a stable O(n log n) sort.
-// Example: MergeFunc(users, func(a, b user) bool { return a.Name < b.Name }).
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(n).
+//
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(n) additional space.
 func MergeFunc[T any](values []T, less func(a, b T) bool) []T {
-	out := clone(values)
-	MergeInPlaceFunc(out, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	out := slices.Clone(values)
+	mergeInPlace(out, less)
 	return out
 }
 
-// MergeInPlace sorts values in ascending order using merge sort.
+// MergeInPlace sorts values in place using merge sort.
 //
-// The input slice is overwritten with the sorted result. The algorithm is stable but still needs
-// an auxiliary buffer under the hood.
-// Example: MergeInPlace([]int{4, 1, 4, 2}) changes the slice to []int{1, 2, 4, 4}.
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(n).
+// # Characteristics
+//
+// The algorithm is stable but still needs an auxiliary buffer under the hood.
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(n) additional space.
 func MergeInPlace[T cmp.Ordered](values []T) {
-	MergeInPlaceFunc(values, orderedLess[T])
+	MergeInPlaceFunc(values, cmp.Less[T])
 }
 
 // MergeInPlaceFunc sorts values in place using merge sort and the provided comparator.
 //
-// Example: MergeInPlaceFunc(records, func(a, b record) bool { return a.Timestamp < b.Timestamp }).
-// Time complexity: O(n log n) in best, average, and worst case. Additional space: O(n).
+// # Requirements
+//
+// less must define a strict weak ordering.
+//
+// It panics if less is nil.
+//
+// # Complexity
+//
+// It runs in O(n log n) time and uses O(n) additional space.
 func MergeInPlaceFunc[T any](values []T, less func(a, b T) bool) {
-	mergeInPlace(values, requireLess(less))
+	if less == nil {
+		panic("sorting: less comparator is nil")
+	}
+	mergeInPlace(values, less)
 }
 
 // mergeInPlace allocates one reusable buffer and starts the alternating source/destination recursion.
 // This keeps the implementation stable without allocating a fresh slice at every recursion level.
 func mergeInPlace[T any](values []T, less func(a, b T) bool) {
-	if len(values) < 2 {
+	n := len(values)
+	if n < 2 {
 		return
 	}
 
-	buffer := clone(values)
-	mergeSort(values, buffer, 0, len(values), less)
+	buffer := make([]T, n)
+	copy(buffer, values)
+	mergeSort(values, buffer, 0, n, less)
 }
 
 // mergeSort sorts src[start:end] into dst[start:end], swapping source and destination on recursive

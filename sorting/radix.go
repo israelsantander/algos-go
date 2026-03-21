@@ -1,25 +1,35 @@
 package sorting
 
 import "math/bits"
+import "slices"
 
+const radix uint = 256
 // Radix returns a sorted copy of integer values using radix sort.
+//
+// # Characteristics
 //
 // Radix sort is a non-comparison sort that can outperform comparison sorts on large integer-heavy
 // inputs. This implementation handles signed ints by sorting a bit-transformed key that preserves
 // normal integer ordering.
-// Example: Radix([]int{170, -45, 75, -90}) returns []int{-90, -45, 75, 170}.
-// Time complexity: O(w*n), where w is the number of processed bytes. Additional space: O(n).
+//
+// # Complexity
+//
+// It runs in O(w*n) time, where w is the number of processed bytes, and uses O(n) additional space.
 func Radix(values []int) []int {
-	out := clone(values)
+	out := slices.Clone(values)
 	RadixInPlace(out)
 	return out
 }
 
-// RadixInPlace sorts integer values in ascending order using radix sort.
+// RadixInPlace sorts integer values in place using radix sort.
+//
+// # Characteristics
 //
 // The algorithm performs a stable counting pass for each byte of the transformed integer key.
-// Example: RadixInPlace([]int{12, -5, 7, 0}) changes the slice to []int{-5, 0, 7, 12}.
-// Time complexity: O(w*n), where w is the number of processed bytes. Additional space: O(n).
+//
+// # Complexity
+//
+// It runs in O(w*n) time, where w is the number of processed bytes, and uses O(n) additional space.
 func RadixInPlace(values []int) {
 	if len(values) < 2 {
 		return
@@ -28,7 +38,7 @@ func RadixInPlace(values []int) {
 	buffer := make([]int, len(values))
 	from := values
 	to := buffer
-	const radix = 256
+	
 	var counts [radix]int
 	signMask := uint(1) << (bits.UintSize - 1)
 
